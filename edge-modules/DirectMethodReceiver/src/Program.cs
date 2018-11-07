@@ -3,6 +3,7 @@
 namespace DirectMethodReceiver
 {
     using System;
+    using System.Collections;
     using System.Globalization;
     using System.IO;
     using System.Net;
@@ -27,15 +28,7 @@ namespace DirectMethodReceiver
                 .AddEnvironmentVariables()
                 .Build();
 
-            Console.WriteLine("[Configuration]");
-            Console.WriteLine($"EdgeHubConnectionString={configuration.GetValue<string>("EdgeHubConnectionString")}");
-            Console.WriteLine($"IOTEDGE_WORKLOADURI={configuration.GetValue<string>("IOTEDGE_WORKLOADURI")}");
-            Console.WriteLine($"IOTEDGE_DEVICEID={configuration.GetValue<string>("IOTEDGE_DEVICEID")}");
-            Console.WriteLine($"IOTEDGE_MODULEID={configuration.GetValue<string>("IOTEDGE_MODULEID")}");
-            Console.WriteLine($"IOTEDGE_IOTHUBHOSTNAME={configuration.GetValue<string>("IOTEDGE_IOTHUBHOSTNAME")}");
-            Console.WriteLine($"IOTEDGE_AUTHSCHEME={configuration.GetValue<string>("IOTEDGE_AUTHSCHEME")}");
-            Console.WriteLine($"IOTEDGE_MODULEGENERATIONID={configuration.GetValue<string>("IOTEDGE_MODULEGENERATIONID")}");
-            Console.WriteLine($"IOTEDGE_GATEWAYHOSTNAME={configuration.GetValue<string>("IOTEDGE_GATEWAYHOSTNAME")}");
+            DumpModuleClientConfiguration();
 
             TransportType transportType = configuration.GetValue("ClientTransportType", TransportType.Amqp_Tcp_Only);
             Console.WriteLine($"Using transport {transportType.ToString()}");
@@ -87,6 +80,27 @@ namespace DirectMethodReceiver
         {
             Console.WriteLine("Received direct method call...");
             return Task.FromResult(new MethodResponse((int)HttpStatusCode.OK));
+        }
+
+        static void DumpModuleClientConfiguration()
+        {
+            Console.WriteLine("[Configuration for module client]");
+            IDictionary environmentVariables = Environment.GetEnvironmentVariables();
+            Console.WriteLine($"EdgeHubConnectionString={GetValueFromEnvironment(environmentVariables, "EdgeHubConnectionString")}");
+            Console.WriteLine($"IOTEDGE_WORKLOADURI={GetValueFromEnvironment(environmentVariables, "IOTEDGE_WORKLOADURI")}");
+            Console.WriteLine($"IOTEDGE_DEVICEID={GetValueFromEnvironment(environmentVariables, "IOTEDGE_DEVICEID")}");
+            Console.WriteLine($"IOTEDGE_MODULEID={GetValueFromEnvironment(environmentVariables, "IOTEDGE_MODULEID")}");
+            Console.WriteLine($"IOTEDGE_IOTHUBHOSTNAME={GetValueFromEnvironment(environmentVariables, "IOTEDGE_IOTHUBHOSTNAME")}");
+            Console.WriteLine($"IOTEDGE_AUTHSCHEME={GetValueFromEnvironment(environmentVariables, "IOTEDGE_AUTHSCHEME")}");
+            Console.WriteLine($"IOTEDGE_MODULEGENERATIONID={GetValueFromEnvironment(environmentVariables, "IOTEDGE_MODULEGENERATIONID")}");
+            Console.WriteLine($"IOTEDGE_GATEWAYHOSTNAME={GetValueFromEnvironment(environmentVariables, "IOTEDGE_GATEWAYHOSTNAME")}");
+        }
+
+        static string GetValueFromEnvironment(IDictionary envVariables, string variableName)
+        {
+            if (envVariables.Contains((object) variableName))
+                return envVariables[(object) variableName].ToString();
+            return (string) null;
         }
     }
 }
