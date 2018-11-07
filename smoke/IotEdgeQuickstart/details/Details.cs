@@ -346,7 +346,7 @@ namespace IotEdgeQuickstart.Details
             string deployJson = this.DeploymentFileName.Match(
                 f =>
                 {
-                    Console.WriteLine("Deployment file used: {f}");
+                    Console.WriteLine($"Deployment file used: {f}");
                     return JObject.Parse(File.ReadAllText(f)).ToString();
                 },
                 () => {
