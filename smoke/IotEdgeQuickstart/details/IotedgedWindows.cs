@@ -113,7 +113,7 @@ namespace IotEdgeQuickstart.Details
                 }
 
                 string args = $". {this.scriptDir}\\IotEdgeSecurityDaemon.ps1; Install-SecurityDaemon -Manual " +
-                    $"-ContainerOs Windows -DeviceConnectionString '{connectionString}' -AgentImage '{image}'";
+                    $"-ContainerOs Windows -DeviceConnectionString '{connectionString}' -AgentImage '{image}' -RuntimeLogLevel {runtimeLogLevel.ToString().ToLower()}";
 
                 foreach (RegistryCredentials c in this.credentials)
                 {
