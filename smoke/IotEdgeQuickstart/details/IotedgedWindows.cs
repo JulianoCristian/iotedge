@@ -163,7 +163,10 @@ namespace IotEdgeQuickstart.Details
                 throw new Exception($"Error starting iotedged: {e}");
             }
 
+            // Add delay to ensure iotedge service is completely started up.
+            Task.Delay(new TimeSpan(0, 0, 0, 5));
             Console.WriteLine("iotedge service started on Windows");
+            
             return Task.CompletedTask;
         }
 
