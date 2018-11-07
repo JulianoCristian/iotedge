@@ -28,13 +28,15 @@ namespace DirectMethodSender
                 .AddEnvironmentVariables()
                 .Build();
 
+            Console.WriteLine($"EdgeHubConnectionString={configuration.GetValue<string>("EdgeHubConnectionString")}");
+
             TimeSpan dmDelay = configuration.GetValue("DMDelay", TimeSpan.FromSeconds(5));
 
             string targetModuleId = configuration.GetValue("TargetModuleId", "DirectMethodReceiver");
 
             // Get deviced id of this device, exposed as a system variable by the iot edge runtime
             string targetDeviceId = configuration.GetValue<string>("IOTEDGE_DEVICEID");
-
+            
             TransportType transportType = configuration.GetValue("ClientTransportType", TransportType.Amqp_Tcp_Only);
             Console.WriteLine($"Using transport {transportType.ToString()}");
 
