@@ -28,7 +28,15 @@ namespace DirectMethodSender
                 .AddEnvironmentVariables()
                 .Build();
 
+            Console.WriteLine("[Configuration]");
             Console.WriteLine($"EdgeHubConnectionString={configuration.GetValue<string>("EdgeHubConnectionString")}");
+            Console.WriteLine($"IOTEDGE_WORKLOADURI={configuration.GetValue<string>("IOTEDGE_WORKLOADURI")}");
+            Console.WriteLine($"IOTEDGE_DEVICEID={configuration.GetValue<string>("IOTEDGE_DEVICEID")}");
+            Console.WriteLine($"IOTEDGE_MODULEID={configuration.GetValue<string>("IOTEDGE_MODULEID")}");
+            Console.WriteLine($"IOTEDGE_IOTHUBHOSTNAME={configuration.GetValue<string>("IOTEDGE_IOTHUBHOSTNAME")}");
+            Console.WriteLine($"IOTEDGE_AUTHSCHEME={configuration.GetValue<string>("IOTEDGE_AUTHSCHEME")}");
+            Console.WriteLine($"IOTEDGE_MODULEGENERATIONID={configuration.GetValue<string>("IOTEDGE_MODULEGENERATIONID")}");
+            Console.WriteLine($"IOTEDGE_GATEWAYHOSTNAME={configuration.GetValue<string>("IOTEDGE_GATEWAYHOSTNAME")}");
 
             TimeSpan dmDelay = configuration.GetValue("DMDelay", TimeSpan.FromSeconds(5));
 
