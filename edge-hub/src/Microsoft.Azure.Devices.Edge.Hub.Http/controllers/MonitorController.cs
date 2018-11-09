@@ -2,6 +2,7 @@
 
 namespace Microsoft.Azure.Devices.Edge.Hub.Http.controllers
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.AspNetCore.Authorization.Infrastructure;
@@ -39,10 +40,13 @@ namespace Microsoft.Azure.Devices.Edge.Hub.Http.controllers
                     g =>
                         g.Select(x => $"[{g.Key}] {x?.ActionConstraints?.OfType<HttpMethodActionConstraint>().FirstOrDefault()?.HttpMethods.First()} -> {x.AttributeRouteInfo.Template}")
                 ).ToArray();
-            return this.Ok(
-                openRoutesDisplay
-                    .Concat(new[] { "-------- SECURED ROUTES --------" })
-                    .Concat(roleGroupedRoutesDisplay));
+
+            var definedRoutes = openRoutesDisplay
+                .Concat(new[] { "-------- SECURED ROUTES --------" })
+                .Concat(roleGroupedRoutesDisplay);
+
+            Console.WriteLine(definedRoutes);
+            return this.Ok(definedRoutes);
         }
 
         public string GetAuthorizationRole(ActionDescriptor action)

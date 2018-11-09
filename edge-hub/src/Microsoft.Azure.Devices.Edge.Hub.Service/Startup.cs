@@ -78,7 +78,14 @@ namespace Microsoft.Azure.Devices.Edge.Hub.Service
 
             app.UseAuthenticationMiddleware(iotHubHostname, edgeDeviceId);
 
-            app.UseMvc();
+            app.UseMvc(
+                builder =>
+                {
+                    builder.MapRoute(
+                        name: "default",
+                        template: "",
+                        defaults: new { controller = "Routes", action = "routes" });
+                });
         }
     }
 }
