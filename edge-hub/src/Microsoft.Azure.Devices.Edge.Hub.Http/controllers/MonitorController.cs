@@ -22,8 +22,8 @@ namespace Microsoft.Azure.Devices.Edge.Hub.Http.controllers
             this.provider = provider;
         }
 
-        [HttpGet("routes")]
-        public IActionResult GetRoutes()
+        [HttpGet("index")]
+        public IActionResult Index()
         {
             IEnumerable<ActionDescriptor> openRoutes = this.provider.ActionDescriptors.Items
                 .Where(
