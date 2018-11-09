@@ -1,12 +1,20 @@
 
 namespace Microsoft.Azure.Devices.Edge.Hub.Http.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Net;
     using System.Text;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization.Infrastructure;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.Abstractions;
+    using Microsoft.AspNetCore.Mvc.Authorization;
     using Microsoft.AspNetCore.Mvc.Filters;
+    using Microsoft.AspNetCore.Mvc.Infrastructure;
+    using Microsoft.AspNetCore.Mvc.Internal;
     using Microsoft.Azure.Devices.Edge.Hub.Core;
     using Microsoft.Azure.Devices.Edge.Hub.Core.Identity;
     using Microsoft.Azure.Devices.Edge.Util;
@@ -19,15 +27,63 @@ namespace Microsoft.Azure.Devices.Edge.Hub.Http.Controllers
         readonly Task<IEdgeHub> edgeHubGetter;
         readonly IValidator<MethodRequest> validator;
         IIdentity identity;
-        
-        public TwinsController(Task<IEdgeHub> edgeHub, IValidator<MethodRequest> validator)
+        bool showRoutes;
+
+        readonly IActionDescriptorCollectionProvider provider;
+
+        public TwinsController(Task<IEdgeHub> edgeHub, IValidator<MethodRequest> validator, IActionDescriptorCollectionProvider provider)
         {
             this.edgeHubGetter = Preconditions.CheckNotNull(edgeHub, nameof(edgeHub));
             this.validator = Preconditions.CheckNotNull(validator, nameof(validator));
+
+            this.provider = provider;
+        }
+
+        public string GetRoutes()
+        {
+            IEnumerable<ActionDescriptor> openRoutes = this.provider.ActionDescriptors.Items
+                .Where(
+                    x => x.FilterDescriptors.All(f => f.Filter.GetType() != typeof(AuthorizeFilter)) ||
+                        x.FilterDescriptors.Any(f => f.Filter.GetType() == typeof(AllowAnonymousFilter)));
+
+            var openRoutesDisplay = openRoutes
+                .Select(x => $"{x?.ActionConstraints?.OfType<HttpMethodActionConstraint>().FirstOrDefault()?.HttpMethods.First()} -> {x.AttributeRouteInfo.Template}");
+
+            var roleGroupedRoutesDisplay = this.provider.ActionDescriptors.Items
+                .Except(openRoutes)
+                .GroupBy(r => this.GetAuthorizationRole(r))
+                .SelectMany(
+                    g =>
+                        g.Select(x => $"[{g.Key}] {x?.ActionConstraints?.OfType<HttpMethodActionConstraint>().FirstOrDefault()?.HttpMethods.First()} -> {x.AttributeRouteInfo.Template}")
+                ).ToArray();
+            return string.Join(Environment.NewLine, openRoutesDisplay
+                    .Concat(new[] { "-------- SECURED ROUTES --------" })
+                    .Concat(roleGroupedRoutesDisplay));
+        }
+
+        public string GetAuthorizationRole(ActionDescriptor action)
+        {
+            var allowedRoles = ((RolesAuthorizationRequirement) action.FilterDescriptors.Where(x => x.Filter.GetType() == typeof(AuthorizeFilter))
+                .SelectMany(x => ((AuthorizeFilter) x.Filter).Policy.Requirements)
+                .FirstOrDefault(x => x.GetType() == typeof(RolesAuthorizationRequirement)))?.AllowedRoles;
+
+            if (allowedRoles == null)
+            {
+                return "Authenticated";
+            }
+
+            return string.Join(", ", allowedRoles);
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
+            if (!this.showRoutes)
+            {
+                this.showRoutes = true;
+                Console.WriteLine("Output all defined routes:");
+                Console.WriteLine(this.GetRoutes());
+            }
+
             if (context.HttpContext.Items.TryGetValue(HttpConstants.IdentityKey, out object contextIdentity))
             {
                 this.identity = contextIdentity as IIdentity;
