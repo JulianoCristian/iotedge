@@ -82,9 +82,10 @@ namespace Microsoft.Azure.Devices.Edge.Hub.Service
                 builder =>
                 {
                     builder.MapRoute(
-                        name: "default",
-                        template: "",
-                        defaults: new { controller = "Monitor", action = "Index" });
+                        "NotFound",
+                        "{*url}",
+                        new { controller = "Monitor", action = "Index" }
+                    );
                 });
         }
     }
