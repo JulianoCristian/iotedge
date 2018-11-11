@@ -12,7 +12,6 @@ namespace Microsoft.Azure.Devices.Edge.Hub.Http.controllers
     using Microsoft.AspNetCore.Mvc.Infrastructure;
     using Microsoft.AspNetCore.Mvc.Internal;
 
-    [Route("monitor")]
     public class MonitorController : Controller
     {
         readonly IActionDescriptorCollectionProvider provider;
@@ -22,7 +21,7 @@ namespace Microsoft.Azure.Devices.Edge.Hub.Http.controllers
             this.provider = provider;
         }
 
-        [HttpGet("index")]
+        [Route("{*url}")]
         public IActionResult Index()
         {
             IEnumerable<ActionDescriptor> openRoutes = this.provider.ActionDescriptors.Items
