@@ -22,8 +22,11 @@ namespace Microsoft.Azure.Devices.Edge.Hub.Http.controllers
         }
 
         [Route("{*url}")]
+        [ActionName("Index")]
         public IActionResult Index()
         {
+            Console.WriteLine("MonitorController Index method get hit");
+
             IEnumerable<ActionDescriptor> openRoutes = this.provider.ActionDescriptors.Items
                 .Where(
                     x => x.FilterDescriptors.All(f => f.Filter.GetType() != typeof(AuthorizeFilter)) ||
