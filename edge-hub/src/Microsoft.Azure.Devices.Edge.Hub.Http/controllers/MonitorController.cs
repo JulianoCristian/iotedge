@@ -30,14 +30,14 @@ namespace Microsoft.Azure.Devices.Edge.Hub.Http.controllers
                         x.FilterDescriptors.Any(f => f.Filter.GetType() == typeof(AllowAnonymousFilter)));
 
             var openRoutesDisplay = openRoutes
-                .Select(x => $"{x?.ActionConstraints?.OfType<HttpMethodActionConstraint>().FirstOrDefault()?.HttpMethods.First()} -> {x.AttributeRouteInfo.Template}");
+                .Select(x => $"{x?.ActionConstraints?.OfType<HttpMethodActionConstraint>().FirstOrDefault()?.HttpMethods.First()} -> {x.AttributeRouteInfo?.Template}");
 
             var roleGroupedRoutesDisplay = this.provider.ActionDescriptors.Items
                 .Except(openRoutes)
                 .GroupBy(r => this.GetAuthorizationRole(r))
                 .SelectMany(
                     g =>
-                        g.Select(x => $"[{g.Key}] {x?.ActionConstraints?.OfType<HttpMethodActionConstraint>().FirstOrDefault()?.HttpMethods.First()} -> {x.AttributeRouteInfo.Template}")
+                        g.Select(x => $"[{g.Key}] {x?.ActionConstraints?.OfType<HttpMethodActionConstraint>().FirstOrDefault()?.HttpMethods.First()} -> {x.AttributeRouteInfo?.Template}")
                 ).ToArray();
 
             var definedRoutes = openRoutesDisplay
